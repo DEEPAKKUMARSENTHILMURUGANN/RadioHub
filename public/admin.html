@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#030714">
+  <title>RJ Hunt 2026 · Control room</title>
+  <meta name="description" content="Control room for the RJ Hunt stage wheel">
+  <link rel="preload" href="fonts/unbounded-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/admin.css">
+  <link rel="stylesheet" href="css/admin-fx.css?v=3">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎛️</text></svg>">
+</head>
+<body class="admin is-locked">
+
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <symbol id="i-shipwreck" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="2.2"/><path d="M12 7.2V21"/><path d="M8 11h8"/><path d="M4 14c0 4 3.6 7 8 7s8-3 8-7"/><path d="M2.5 15.5 4 14l1.5 1.5M18.5 15.5 20 14l1.5 1.5"/></g></symbol>
+    <symbol id="i-interview" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="8.5" y="2.5" width="7" height="12" rx="3.5"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0"/><path d="M12 17.5V21M8.5 21h7"/><path d="M8.5 7h2M8.5 10h2"/></g></symbol>
+    <symbol id="i-hints_development" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M9 17.5h6M10 21h4"/><path d="M12 2.5a6.5 6.5 0 0 0-3.8 11.8c.5.4.8 1 .8 1.7v1.5h6V16c0-.7.3-1.3.8-1.7A6.5 6.5 0 0 0 12 2.5Z"/><path d="M12 7v3.5l2 1.5"/></g></symbol>
+    <symbol id="i-lock" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="4.5" y="10.5" width="15" height="10.5" rx="2.5"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3"/></g></symbol>
+    <symbol id="i-bolt" viewBox="0 0 24 24"><path d="M13.5 2 4.5 13.5H11L10 22l9-11.5h-6.5L13.5 2Z" fill="currentColor"/></symbol>
+    <symbol id="i-reset" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 12a8.5 8.5 0 1 0 2.6-6.1"/><path d="M3.5 4v4.5H8"/></g></symbol>
+    <symbol id="i-bell" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15z"/><path d="M10 20.5a2 2 0 0 0 4 0"/></g></symbol>
+    <symbol id="i-screen" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></g></symbol>
+    <symbol id="i-out" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4h4a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-4"/><path d="M10 16l-4-4 4-4M6 12h10"/></g></symbol>
+  </svg>
+
+  <div class="aurora" aria-hidden="true"><i class="a1"></i><i class="a2"></i><i class="a3"></i></div>
+  <div class="bg-grid" aria-hidden="true"></div>
+
+  <!-- ============ Sign in ============ -->
+  <div id="authOverlay" class="auth">
+    <form class="auth-card" id="authForm" autocomplete="off">
+      <div class="auth-lock"><svg class="glyph"><use href="#i-lock"/></svg></div>
+      <h1>Control room</h1>
+      <p>Enter the admin PIN to control the stage wheel.</p>
+      <label class="sr-only" for="adminPinInput">Admin PIN</label>
+      <input type="password" id="adminPinInput" class="pin-input" placeholder="PIN" autofocus inputmode="text" autocomplete="current-password">
+      <p id="authError" class="auth-error" role="alert">That PIN didn’t match. Check it and try again.</p>
+      <button type="submit" id="btnAuthLogin" class="btn btn-primary btn-block">Unlock</button>
+    </form>
+  </div>
+
+  <div class="console" id="console">
+
+    <!-- ============ Top bar ============ -->
+    <header class="topbar">
+      <div class="brand">
+        <span class="brand-mark">RJ</span>
+        <div class="brand-text">
+          <strong>RJ Hunt control room</strong>
+          <span>INTRAMS 2K26 · PSG Radio Hub</span>
+        </div>
+      </div>
+      <div class="topbar-mid">
+        <span class="conn" id="connState"><i></i><span>Connecting…</span></span>
+        <span class="onair" id="adminOnAir">ON AIR</span>
+      </div>
+      <nav class="topbar-actions">
+        <a href="audience.html" target="_blank" class="btn btn-ghost"><svg class="glyph"><use href="#i-screen"/></svg><span>Open stage</span></a>
+        <button id="btnAdminLogout" class="btn btn-ghost" title="Log out"><svg class="glyph"><use href="#i-out"/></svg><span>Log out</span></button>
+      </nav>
+    </header>
+
+    <main class="layout">
+      <div class="col col-left">
+
+      <!-- ============ Outcome ============ -->
+      <section class="panel panel-outcome" aria-labelledby="outcomeHeading" style="--d:0">
+        <div class="readout" id="readout" style="--hue: #22b8f0">
+          <div class="readout-top">
+            <h2 id="outcomeHeading">Next spin lands on</h2>
+            <span class="mode-chip" id="modeChip"><i id="riggedIndicatorLight"></i><span id="modeChipText">Selected</span></span>
+          </div>
+          <div class="readout-main">
+            <span class="readout-icon" id="readoutIcon"><svg><use href="#i-shipwreck"/></svg></span>
+            <span class="readout-name" id="currentTargetLabel">Shipwreck</span>
+          </div>
+          <div class="readout-sweep" aria-hidden="true"></div>
+          <div class="readout-scan" aria-hidden="true"></div>
+          <svg class="readout-watermark" id="readoutWatermark" aria-hidden="true"><use href="#i-shipwreck"/></svg>
+        </div>
+
+        <div class="keys" role="radiogroup" aria-label="Choose the outcome">
+          <button class="key target-card" role="radio" data-target="shipwreck" style="--hue: var(--c-shipwreck)">
+            <span class="key-led"></span>
+            <svg class="key-icon"><use href="#i-shipwreck"/></svg>
+            <span class="key-name">Shipwreck</span>
+            <span class="key-desc">Survival pitch</span>
+            <kbd>1</kbd>
+          </button>
+          <button class="key target-card" role="radio" data-target="interview" style="--hue: var(--c-interview)">
+            <span class="key-led"></span>
+            <svg class="key-icon"><use href="#i-interview"/></svg>
+            <span class="key-name">Interview</span>
+            <span class="key-desc">Hot seat on air</span>
+            <kbd>2</kbd>
+          </button>
+          <button class="key target-card" role="radio" data-target="hints_development" style="--hue: var(--c-hints)">
+            <span class="key-led"></span>
+            <svg class="key-icon"><use href="#i-hints_development"/></svg>
+            <span class="key-name">Hints Dev</span>
+            <span class="key-desc">Mystery clues</span>
+            <kbd>3</kbd>
+          </button>
+        </div>
+
+        <div class="actions">
+          <button id="btnRemoteSpin" class="btn btn-spin"><svg class="glyph"><use href="#i-bolt"/></svg><span>Spin now</span></button>
+          <button id="btnRemoteReset" class="btn btn-secondary"><svg class="glyph"><use href="#i-reset"/></svg><span>Reset stage</span></button>
+        </div>
+      </section>
+
+      <section class="panel panel-history" aria-labelledby="historyHeading" style="--d:3">
+        <div class="panel-head"><h2 id="historyHeading">Spin log</h2></div>
+        <ol class="log" id="historyTableBody"></ol>
+      </section>
+
+      </div>
+
+      <div class="col col-right">
+      <!-- ============ Stage monitor ============ -->
+      <section class="panel panel-monitor" aria-labelledby="monitorHeading" style="--d:1">
+        <div class="panel-head">
+          <h2 id="monitorHeading">Stage monitor</h2>
+          <span id="stageStatusBadge" class="status idle">Ready</span>
+        </div>
+
+        <div class="progress" id="spinProgress" aria-hidden="true"><i></i></div>
+
+        <div class="mirror-row">
+          <div class="mirror">
+            <canvas id="mirrorWheel" aria-label="Live copy of the stage wheel"></canvas>
+            <span class="mirror-label">Live mirror</span>
+          </div>
+        <dl class="stats">
+          <div class="stat">
+            <dt>Last result</dt>
+            <dd id="lastResultVal" class="stat-result">None yet</dd>
+          </div>
+          <div class="stat">
+            <dt>Spins today</dt>
+            <dd id="spinCount">0</dd>
+          </div>
+        </dl>
+        </div>
+
+        <div class="buzzer-row" id="buzzerRow">
+          <span class="buzz-dot" id="buzzDot"></span>
+          <div class="buzz-text">
+            <strong>Arduino buzzer</strong>
+            <span id="lastBuzzerVal">Waiting for the bridge…</span>
+          </div>
+          <button id="btnTestBuzzer" class="btn btn-ghost btn-sm"><svg class="glyph"><use href="#i-bell"/></svg><span>Test</span></button>
+        </div>
+      </section>
+
+      <!-- ============ Settings ============ -->
+      <section class="panel panel-settings" aria-labelledby="settingsHeading" style="--d:2">
+        <div class="panel-head"><h2 id="settingsHeading">Settings</h2></div>
+
+        <div class="field">
+          <div class="field-row"><label for="stageDisplayNameInput">Stage display name</label></div>
+          <div class="pin-row">
+            <input type="text" id="stageDisplayNameInput" class="text-input" placeholder="e.g. Deepak’s Spin" maxlength="32" autocomplete="off">
+            <button id="btnStageDisplayName" class="btn btn-secondary btn-sm">Update</button>
+          </div>
+          <small class="field-hint">Press Update to show this name full screen on stage, then it settles next to the buzzer.</small>
+        </div>
+
+        <div class="field">
+          <div class="field-row">
+            <label for="durationSlider">Spin length</label>
+            <output id="durationVal">6.0s</output>
+          </div>
+          <input type="range" id="durationSlider" class="range" min="3" max="12" step="0.5" value="6">
+        </div>
+
+        <div class="field">
+          <div class="field-row"><span id="layoutLabel">Wheel layout</span></div>
+          <div class="segmented" role="radiogroup" aria-labelledby="layoutLabel" id="wheelLayoutSelect">
+            <button role="radio" data-value="6" aria-checked="true">6 slices</button>
+            <button role="radio" data-value="3" aria-checked="false">3 slices</button>
+            <span class="seg-thumb"></span>
+          </div>
+        </div>
+
+        <div class="field field-inline">
+          <label for="adminSoundToggle">Stage sound effects</label>
+          <label class="switch"><input type="checkbox" id="adminSoundToggle" checked><span></span></label>
+        </div>
+
+        <div class="field">
+          <div class="field-row"><label for="newPinInput">Change admin PIN</label></div>
+          <div class="pin-row">
+            <input type="password" id="newPinInput" class="text-input" placeholder="At least 4 characters">
+            <button id="btnChangePin" class="btn btn-secondary btn-sm">Save PIN</button>
+          </div>
+        </div>
+      </section>
+
+
+      <!-- ============ Hotkeys ============ -->
+      <aside class="panel panel-hotkeys" style="--d:4">
+        <h2>From the stage laptop</h2>
+        <p>Set the next result without opening this page: press <kbd>1</kbd> Shipwreck, <kbd>2</kbd> Interview, or <kbd>3</kbd> Hints Dev on the stage screen.</p>
+      </aside>
+      </div>
+    </main>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="js/admin-fx.js?v=3"></script>
+  <script src="js/admin.js?v=4"></script>
+</body>
+</html>

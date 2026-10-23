@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RJ Hunt 2026 · Stage</title>
+  <meta name="description" content="PSG College of Technology · Radio Hub · INTRAMS 2K26 RJ Hunt live stage spinner">
+  <link rel="preload" href="fonts/unbounded-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/stage.css">
+  <link rel="stylesheet" href="css/stage-fx.css?v=4">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎙️</text></svg>">
+</head>
+<body class="stage is-intro">
+
+  <!-- Icon sprite -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <symbol id="i-shipwreck" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="2.2"/><path d="M12 7.2V21"/><path d="M8 11h8"/><path d="M4 14c0 4 3.6 7 8 7s8-3 8-7"/><path d="M2.5 15.5 4 14l1.5 1.5M18.5 15.5 20 14l1.5 1.5"/></g></symbol>
+    <symbol id="i-interview" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="8.5" y="2.5" width="7" height="12" rx="3.5"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0"/><path d="M12 17.5V21M8.5 21h7"/><path d="M8.5 7h2M8.5 10h2"/></g></symbol>
+    <symbol id="i-hints_development" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M9 17.5h6M10 21h4"/><path d="M12 2.5a6.5 6.5 0 0 0-3.8 11.8c.5.4.8 1 .8 1.7v1.5h6V16c0-.7.3-1.3.8-1.7A6.5 6.5 0 0 0 12 2.5Z"/><path d="M12 7v3.5l2 1.5"/></g></symbol>
+    <symbol id="i-sound" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z"/><path class="wave" d="M15.5 9a4 4 0 0 1 0 6M18 6.5a7.5 7.5 0 0 1 0 11"/><path class="mute" d="m16 9.5 5 5m0-5-5 5"/></g></symbol>
+    <symbol id="i-fullscreen" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></g></symbol>
+  </svg>
+
+  <!-- Backdrop: stage photo, moving light beams, grain -->
+  <div class="backdrop" aria-hidden="true">
+    <div class="backdrop-photo"></div>
+    <div class="beams">
+      <span class="beam b1"></span><span class="beam b2"></span><span class="beam b3"></span><span class="beam b4"></span><span class="beam b5"></span>
+    </div>
+    <div class="haze"></div>
+    <div class="hue-wash"></div>
+    <div class="vignette"></div>
+  </div>
+
+  <canvas id="fxCanvas" aria-hidden="true"></canvas>
+
+  <div class="stage-shell" id="stageShell">
+
+    <!-- Top bar -->
+    <header class="stage-bar">
+      <div class="bar-left">
+        <img class="brand-logo" src="images/rh%20logo.png" alt="RJ Hunt Radio Hub">
+        <div class="inst">
+          <strong>PSG College of Technology</strong>
+          <span>Radio Hub</span>
+        </div>
+      </div>
+
+      <div class="bar-right">
+        <div class="freq" aria-label="PSG Community Radio 107.8 megahertz">
+          <span class="freq-num" id="freqNum">107.8</span><span class="freq-unit">MHz</span>
+        </div>
+        <button id="soundToggleBtn" class="icon-btn" title="Mute audio" aria-label="Toggle audio"><svg class="glyph"><use href="#i-sound"/></svg></button>
+        <button id="fullscreenToggleBtn" class="icon-btn" title="Fullscreen" aria-label="Toggle fullscreen"><svg class="glyph"><use href="#i-fullscreen"/></svg></button>
+        <span class="union-label">Students Union<br>2026–27</span>
+        <img class="intrams-logo" src="images/intrams_logo.png" alt="INTRAMS 2K26 — Sailing into the unknown">
+      </div>
+    </header>
+
+    <main class="stage-grid">
+
+      <!-- Left rail: title + challenge channels -->
+      <aside class="rail rail-left">
+        <div class="title-block">
+          <h1 class="title chrome-text" aria-label="RJ Hunt">
+            <span class="title-line">RJ</span>
+            <span class="title-line">Hunt</span>
+          </h1>
+        </div>
+
+      </aside>
+
+      <!-- Center: the wheel -->
+      <section class="wheel-zone" aria-label="Spinning wheel">
+        <div class="wheel-rig" id="wheelRig">
+          <div class="wheel-halo"></div>
+          <canvas id="wheelCanvas" aria-hidden="true"></canvas>
+
+          <div class="concentric-wheel-stack" id="concentricWheelStack">
+            <div class="ring-disc ring-base" id="discMics" aria-hidden="true"></div>
+            <div class="ring-disc ring-mid" id="discHands" aria-hidden="true"></div>
+            <div class="ring-disc ring-film" id="discFilmstrip" aria-hidden="true"></div>
+            <div class="ring-disc ring-center" id="discCenter" aria-hidden="true"></div>
+            <div class="disc-gloss"></div>
+          </div>
+
+          <div class="lock-ring" id="lockRing"></div>
+
+          <!-- Needle -->
+          <div class="wheel-pointer" id="wheelPointer" aria-hidden="true">
+            <svg viewBox="0 0 60 100" class="needle mic-pointer">
+              <defs>
+                <linearGradient id="needleChrome" x1="0" x2="1">
+                  <stop offset="0" stop-color="#6c84b8"/><stop offset=".4" stop-color="#ffffff"/><stop offset=".55" stop-color="#c9d7f5"/><stop offset="1" stop-color="#4f6496"/>
+                </linearGradient>
+                <radialGradient id="micGrille" cx=".38" cy=".3" r=".8">
+                  <stop offset="0" stop-color="#f4f8ff"/><stop offset=".45" stop-color="#8ea6d8"/><stop offset="1" stop-color="#2a3a66"/>
+                </radialGradient>
+                <pattern id="micMesh" width="4" height="4" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+                  <rect width="4" height="4" fill="none"/><path d="M0 0V4M0 0H4" stroke="#0a1430" stroke-width=".9" opacity=".55"/>
+                </pattern>
+                <clipPath id="micHeadClip"><rect x="11" y="2" width="38" height="44" rx="19"/></clipPath>
+              </defs>
+              <!-- handle tapering to the tip -->
+              <path d="M19 52 H41 L33 92 Q30 99 27 92 Z" fill="url(#needleChrome)" stroke="#0a1430" stroke-width="2" stroke-linejoin="round"/>
+              <path d="M24 60 H36" stroke="#0a1430" stroke-width="1.4" opacity=".5"/>
+              <path d="M25 66 H35" stroke="#0a1430" stroke-width="1.4" opacity=".5"/>
+              <!-- grille head -->
+              <rect x="11" y="2" width="38" height="44" rx="19" fill="url(#micGrille)" stroke="#0a1430" stroke-width="2"/>
+              <rect x="11" y="2" width="38" height="44" fill="url(#micMesh)" clip-path="url(#micHeadClip)"/>
+              <path d="M17 13 Q22 6 30 5" stroke="#ffffff" stroke-width="3" stroke-linecap="round" fill="none" opacity=".75"/>
+              <!-- band with on-air LED -->
+              <rect x="9" y="42" width="42" height="12" rx="4" fill="url(#needleChrome)" stroke="#0a1430" stroke-width="2"/>
+              <circle class="needle-led" cx="30" cy="48" r="3.2"/>
+            </svg>
+          </div>
+        </div>
+      </section>
+
+      <!-- Right rail: guest + buzzer -->
+      <aside class="rail rail-right">
+        <figure class="guest guest-name-only">
+          <figcaption class="name-tag">
+            <span class="eq" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>
+            <strong id="stageDisplayName">RJ Shalini</strong>
+          </figcaption>
+        </figure>
+
+        <div class="buzzer-zone">
+          <div class="buzzer-housing">
+            <div class="buzzer-orbit"></div>
+            <div class="buzzer-orbit o2"></div>
+            <div id="buzzerShockwave" class="buzzer-shockwave"></div>
+            <button id="screenBuzzerBtn" class="buzzer" aria-label="Hit the buzzer to spin the wheel">
+              <span class="buzzer-cap"><span class="buzzer-label">Buzz</span></span>
+            </button>
+          </div>
+        </div>
+      </aside>
+    </main>
+
+  </div>
+
+  <!-- Flash + shake layers -->
+  <div class="flash" id="flashLayer" aria-hidden="true"></div>
+
+  <!-- Reveal -->
+  <div id="winnerModal" class="reveal" role="dialog" aria-modal="true" aria-labelledby="winnerTitle">
+    <div class="reveal-bg"></div>
+    <div class="reveal-rays" aria-hidden="true"></div>
+    <div class="reveal-marquee" aria-hidden="true">
+      <div class="mq mq1" id="mq1"></div>
+      <div class="mq mq2" id="mq2"></div>
+      <div class="mq mq3" id="mq3"></div>
+    </div>
+    <div class="reveal-card">
+      <div class="reveal-kicker"><span id="revealChannel" class="reveal-channel">CH 2</span></div>
+      <div id="winnerBadgeIcon" class="reveal-icon"><svg><use href="#i-interview"/></svg></div>
+      <h2 id="winnerTitle" class="reveal-title">Interview</h2>
+      <p id="winnerTagline" class="reveal-tagline">Hot seat on air</p>
+      <p id="winnerDesc" class="reveal-desc"></p>
+      <button id="btnCloseModal" class="reveal-btn">Start the challenge</button>
+      <p class="reveal-hint">Press Space to continue</p>
+    </div>
+  </div>
+  <!-- Name intro: full-screen announcement when admin updates the display name -->
+  <div id="nameIntro" class="name-intro" aria-live="polite">
+    <div class="ni-bg"></div>
+    <div class="ni-beam" aria-hidden="true"></div>
+    <div class="ni-rings" aria-hidden="true"><i></i><i></i><i></i></div>
+    <div class="ni-card">
+      <p class="ni-kicker"><span class="ni-dot"></span>Now on stage</p>
+      <h2 class="ni-name" id="niName"></h2>
+      <div class="ni-eq" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+    </div>
+  </div>
+
+  <div class="letterbox top" aria-hidden="true"></div>
+  <div class="letterbox bot" aria-hidden="true"></div>
+  <div class="shock" id="shock1" aria-hidden="true"></div>
+  <div class="shock s2" id="shock2" aria-hidden="true"></div>
+  <div class="scanlines" aria-hidden="true"></div>
+
+  <canvas id="confettiCanvas" aria-hidden="true"></canvas>
+
+  <!-- Stealth secret dot (discreet laptop override) -->
+  <div class="secret-stealth-dot" id="stealthDot"></div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="js/audio.js?v=20261024-2"></script>
+  <script src="js/confetti.js?v=3"></script>
+  <script src="js/fx.js?v=3"></script>
+   <script src="js/wheel.js?v=3"></script>
+   <script src="js/audience.js?v=4"></script>
+</body>
+</html>

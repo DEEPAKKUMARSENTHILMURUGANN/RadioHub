@@ -1,0 +1,107 @@
+/* ==========================================================
+   RJ HUNT 2026 · PSG Radio Hub — shared tokens
+   Concept: a live broadcast studio at night. Chrome + signal blue,
+   with on-air red reserved for "something is happening now".
+   ========================================================== */
+
+@font-face {
+  font-family: 'Unbounded';
+  src: url('../fonts/unbounded-latin-wght-normal.woff2') format('woff2-variations'),
+       url('../fonts/unbounded-latin-wght-normal.woff2') format('woff2');
+  font-weight: 200 900;
+  font-display: swap;
+}
+@font-face { font-family: 'Instrument Sans'; src: url('../fonts/instrument-sans-latin-400-normal.woff2') format('woff2'); font-weight: 400; font-display: swap; }
+@font-face { font-family: 'Instrument Sans'; src: url('../fonts/instrument-sans-latin-500-normal.woff2') format('woff2'); font-weight: 500; font-display: swap; }
+@font-face { font-family: 'Instrument Sans'; src: url('../fonts/instrument-sans-latin-600-normal.woff2') format('woff2'); font-weight: 600; font-display: swap; }
+@font-face { font-family: 'Instrument Sans'; src: url('../fonts/instrument-sans-latin-700-normal.woff2') format('woff2'); font-weight: 700; font-display: swap; }
+
+:root {
+  /* Palette */
+  --night: #030714;        /* studio after dark */
+  --console: #0a1430;      /* panel navy */
+  --console-2: #101d42;
+  --signal: #3d7bff;       /* signal blue */
+  --signal-hi: #7fb0ff;
+  --ice: #dce7ff;          /* chrome / text */
+  --mist: #8a9bc4;         /* secondary text */
+  --onair: #ff2d55;        /* on-air red: live / armed */
+  --vu: #ffb547;           /* VU peak amber */
+
+  /* Challenge hues */
+  --c-shipwreck: #22b8f0;
+  --c-interview: #8f7bff;
+  --c-hints: #2ee6c0;
+
+  --line: rgba(160, 190, 255, 0.14);
+  --line-strong: rgba(160, 190, 255, 0.28);
+
+  --font-display: 'Unbounded', 'Arial Black', system-ui, sans-serif;
+  --font-ui: 'Instrument Sans', 'Segoe UI', system-ui, sans-serif;
+
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body { height: 100%; }
+
+body {
+  background: var(--night);
+  color: var(--ice);
+  font-family: var(--font-ui);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+button { font: inherit; color: inherit; cursor: pointer; border: 0; background: none; }
+a { color: inherit; }
+img { display: block; max-width: 100%; }
+
+:focus-visible { outline: 2px solid var(--signal-hi); outline-offset: 3px; border-radius: 6px; }
+
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* Chrome type treatment used for big display words */
+.chrome-text {
+  background: linear-gradient(180deg, #ffffff 0%, #dbe6ff 38%, #7d95c9 52%, #eef3ff 64%, #9fb4e3 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* On-air lamp: shared by stage + admin */
+.onair {
+  display: inline-flex; align-items: center; gap: .6em;
+  padding: .45em .95em .45em .8em;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 45, 85, .25);
+  background: rgba(255, 45, 85, .06);
+  color: rgba(255, 120, 140, .55);
+  font-family: var(--font-display);
+  font-weight: 600; font-size: .78rem; letter-spacing: .14em;
+  transition: all .35s var(--ease-out);
+}
+.onair::before {
+  content: ''; width: .62em; height: .62em; border-radius: 50%;
+  background: currentColor; opacity: .6;
+}
+.onair.is-live {
+  color: #fff;
+  background: var(--onair);
+  border-color: #ff6f8c;
+  box-shadow: 0 0 0 1px rgba(255,45,85,.4), 0 0 28px rgba(255,45,85,.55), 0 0 80px rgba(255,45,85,.25);
+}
+.onair.is-live::before { opacity: 1; animation: lamp 1s steps(2) infinite; }
+@keyframes lamp { 50% { opacity: .35; } }
+
+/* Challenge icon glyphs (inline SVG) */
+.glyph { width: 1em; height: 1em; display: inline-block; vertical-align: middle; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .001ms !important; animation-iteration-count: 1 !important; transition-duration: .001ms !important; }
+}
+
+kbd { font-family: var(--font-display); font-size: .8em; font-weight: 600; padding: .1em .45em; border-radius: 4px; border: 1px solid var(--line-strong); background: rgba(255,255,255,.06); color: var(--ice); }

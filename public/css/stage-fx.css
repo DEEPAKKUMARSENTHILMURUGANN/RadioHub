@@ -1,0 +1,235 @@
+/* ==========================================================
+   Stage FX layer (v3) — loaded after stage.css
+   ========================================================== */
+
+/* wheel is fully canvas-painted now: hide legacy DOM rings */
+.concentric-wheel-stack { background: none !important; box-shadow: 0 4vh 10vh rgba(0,0,0,.7) !important; }
+.ring-disc, .disc-gloss { display: none !important; }
+
+/* ---------- warp starfield canvas ---------- */
+#fxCanvas { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
+
+/* winner colour wash over the whole stage */
+.hue-wash {
+  position: absolute; inset: 0;
+  background: radial-gradient(70% 70% at 50% 50%, var(--wash, rgba(61,123,255,.0)), transparent 70%);
+  opacity: 0; transition: opacity 1.2s var(--ease-out);
+}
+.is-locked-stage .hue-wash { opacity: 1; }
+.is-spinning .vignette { background: radial-gradient(90% 75% at 50% 50%, transparent 35%, rgba(3,7,20,.96) 100%); transition: background .6s; }
+
+/* beams strobe while spinning */
+.is-spinning .beam { filter: blur(4px) brightness(calc(1 + var(--energy) * .8)); }
+
+/* scanlines + film grain on top of everything (very subtle) */
+.scanlines {
+  position: fixed; inset: 0; z-index: 80; pointer-events: none;
+  background: repeating-linear-gradient(180deg, rgba(255,255,255,.018) 0 1px, transparent 1px 3px);
+  mix-blend-mode: overlay;
+}
+
+/* ---------- title: chrome with travelling shine ---------- */
+.title.chrome-text {
+  background-image:
+    linear-gradient(110deg, transparent 40%, rgba(255,255,255,.95) 49%, rgba(160,200,255,.9) 51%, transparent 60%),
+    linear-gradient(180deg, #ffffff 0%, #dbe6ff 38%, #7d95c9 52%, #eef3ff 64%, #9fb4e3 100%);
+  background-size: 300% 100%, 100% 100%;
+  background-position: 150% 0, 0 0;
+  background-repeat: no-repeat;
+  animation: shine 7s 2.6s var(--ease-in-out) infinite;
+}
+@keyframes shine { 0% { background-position: 150% 0, 0 0; } 35%, 100% { background-position: -60% 0, 0 0; } }
+.is-intro .title.chrome-text { animation: none; }
+.title-line { position: relative; }
+.is-spinning .title { animation: titleJitter .18s steps(2) infinite; }
+@keyframes titleJitter { 50% { transform: translateX(1px); filter: drop-shadow(-3px 0 0 rgba(255,45,85,.6)) drop-shadow(3px 0 0 rgba(34,184,240,.6)); } }
+
+/* ---------- display name with live EQ ---------- */
+.name-tag { display: flex; align-items: center; gap: 1vw; }
+.eq { display: inline-flex; align-items: flex-end; gap: 3px; height: 2.6vh; }
+.eq i { width: 4px; border-radius: 2px; background: linear-gradient(180deg, #ffffff, var(--signal)); animation: eq 1s ease-in-out infinite alternate; }
+.eq i:nth-child(1) { animation-duration: .9s; } .eq i:nth-child(2) { animation-duration: .6s; animation-delay: -.2s; }
+.eq i:nth-child(3) { animation-duration: .75s; animation-delay: -.5s; } .eq i:nth-child(4) { animation-duration: .5s; } .eq i:nth-child(5) { animation-duration: .85s; animation-delay: -.3s; }
+@keyframes eq { from { height: 20%; } to { height: 100%; } }
+.is-spinning .eq i { animation-duration: .18s !important; background: linear-gradient(180deg, #fff, var(--onair)); }
+.guest-name-only strong { font-size: clamp(16px, 3vh, 30px) !important; background: linear-gradient(180deg, #fff, #9fb4e3); -webkit-background-clip: text; background-clip: text; color: transparent !important; }
+
+/* ---------- buzzer orbit + idle breathing ---------- */
+.buzzer-orbit {
+  position: absolute; inset: -2.6vh; border-radius: 50%; pointer-events: none;
+  background: conic-gradient(from 0deg, transparent 0 70%, rgba(255,45,85,.9) 85%, #fff 88%, transparent 90%);
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 3px), #000 calc(100% - 2px));
+          mask: radial-gradient(farthest-side, transparent calc(100% - 3px), #000 calc(100% - 2px));
+  animation: orbit 3.2s linear infinite;
+}
+.buzzer-orbit.o2 { inset: -4.4vh; animation-duration: 5.5s; animation-direction: reverse; opacity: .5;
+  background: conic-gradient(from 90deg, transparent 0 80%, rgba(127,176,255,.9) 92%, transparent 95%); }
+@keyframes orbit { to { transform: rotate(360deg); } }
+.is-spinning .buzzer-orbit { animation-duration: .5s; }
+.buzzer:not([disabled]) { animation: breathe 2.4s var(--ease-in-out) infinite; }
+@keyframes breathe { 50% { filter: brightness(1.15) drop-shadow(0 0 3vh rgba(255,45,85,.55)); } }
+
+/* ---------- wheel glow follows energy ---------- */
+.wheel-halo { background: radial-gradient(circle, var(--halo, rgba(61,123,255,.55)) 0%, rgba(61,123,255,.12) 55%, transparent 70%) !important; }
+.is-locked-stage .wheel-halo { --halo: var(--wash); opacity: 1 !important; }
+
+/* fullscreen shockwave on lock */
+.shock {
+  position: fixed; left: 50%; top: 50%; width: 10vmax; height: 10vmax; margin: -5vmax 0 0 -5vmax;
+  border-radius: 50%; z-index: 45; pointer-events: none; opacity: 0;
+  border: .6vmax solid var(--shock, #fff);
+  box-shadow: 0 0 6vmax var(--shock, #fff), inset 0 0 4vmax var(--shock, #fff);
+}
+.shock.go { animation: shockwave 1.2s var(--ease-out) forwards; }
+.shock.go.s2 { animation-delay: .12s; }
+@keyframes shockwave { 0% { opacity: .9; transform: scale(.3); } 100% { opacity: 0; transform: scale(14); border-width: .05vmax; } }
+
+/* ---------- reveal upgrades ---------- */
+.reveal-marquee { position: absolute; inset: 0; overflow: hidden; display: flex; flex-direction: column; justify-content: center; gap: 4vh; pointer-events: none; opacity: 0; transition: opacity 1s .3s; }
+.reveal.show .reveal-marquee { opacity: 1; }
+.mq { white-space: nowrap; font-family: var(--font-display); font-weight: 900; font-size: 22vh; line-height: 1; letter-spacing: -.04em;
+  color: transparent; -webkit-text-stroke: 2px color-mix(in srgb, var(--hue) 30%, transparent); }
+.mq span { display: inline-block; padding-right: .4em; }
+.mq1 { animation: mqL 30s linear infinite; }
+.mq2 { animation: mqR 34s linear infinite; transform: translateX(-50%); }
+.mq3 { animation: mqL 40s linear infinite; }
+@keyframes mqL { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+@keyframes mqR { from { transform: translateX(-50%); } to { transform: translateX(0); } }
+
+.reveal-card { z-index: 2; }
+.reveal-bg { background:
+    radial-gradient(50% 50% at 50% 48%, color-mix(in srgb, var(--hue) 45%, transparent), transparent 70%),
+    radial-gradient(120% 80% at 50% 120%, color-mix(in srgb, var(--hue) 25%, transparent), transparent 60%),
+    rgba(3,7,20,.86) !important; }
+
+.reveal.show .reveal-title { animation: glitch 3.2s 1.6s infinite; }
+@keyframes glitch {
+  0%, 86%, 100% { transform: none; text-shadow: 0 0 6vh color-mix(in srgb, var(--hue) 75%, transparent); }
+  87% { transform: translate(-6px, 2px) skewX(-8deg); text-shadow: -8px 0 #ff2d55, 8px 0 #22b8f0, 0 0 6vh var(--hue); }
+  89% { transform: translate(5px, -1px) skewX(6deg); text-shadow: 6px 0 #ff2d55, -6px 0 #2ee6c0, 0 0 6vh var(--hue); }
+  91% { transform: translate(-2px, 0); text-shadow: -3px 0 #ff2d55, 3px 0 #22b8f0; }
+  93% { transform: none; }
+}
+.reveal-title .ch.scr { color: var(--hue); }
+
+.reveal-icon { width: 20vh !important; height: 20vh !important; }
+.reveal-icon .orbit-dot {
+  position: absolute; inset: -2vh; border-radius: 50%;
+  border: 1px dashed color-mix(in srgb, var(--hue) 60%, transparent);
+  animation: orbit 12s linear infinite;
+}
+.reveal-icon .orbit-dot::after { content: ''; position: absolute; top: -.6vh; left: 50%; width: 1.2vh; height: 1.2vh; margin-left: -.6vh; border-radius: 50%; background: #fff; box-shadow: 0 0 2vh var(--hue), 0 0 4vh var(--hue); }
+
+.reveal-btn { position: relative; overflow: hidden; }
+.reveal-btn::after { content: ''; position: absolute; inset: 0; background: linear-gradient(105deg, transparent 35%, color-mix(in srgb, var(--hue) 45%, transparent) 50%, transparent 65%); transform: translateX(-120%); animation: btnShine 2.6s 2.2s infinite; }
+@keyframes btnShine { 0%, 50% { transform: translateX(-120%); } 100% { transform: translateX(120%); } }
+
+/* letterbox bars slide in on reveal */
+.letterbox { position: fixed; left: 0; right: 0; height: 7vh; background: #000; z-index: 55; pointer-events: none; transform: scaleY(0); transition: transform .7s var(--ease-out); }
+.letterbox.top { top: 0; transform-origin: top; } .letterbox.bot { bottom: 0; transform-origin: bottom; }
+.reveal.show ~ .letterbox { transform: scaleY(1); }
+
+/* hide cursor when idle on the projector */
+.hide-cursor, .hide-cursor * { cursor: none !important; }
+
+@media (prefers-reduced-motion: reduce) { #fxCanvas, .scanlines { display: none; } }
+
+/* ---------- mic pointer ---------- */
+.wheel-pointer { top: .4%; width: calc(var(--wheel) * .09); margin-left: calc(var(--wheel) * -.045); transform-origin: 50% 26%;
+  filter: drop-shadow(0 .8vh 1.2vh rgba(0,0,0,.7)) drop-shadow(0 0 1.2vh rgba(127,176,255,.35)); }
+.is-spinning .wheel-pointer { filter: drop-shadow(0 .8vh 1.2vh rgba(0,0,0,.7)) drop-shadow(0 0 2vh rgba(255,45,85,.55)); }
+.mic-pointer .needle-led { animation: lamp 1.4s steps(2) infinite; }
+.is-spinning .mic-pointer .needle-led { animation-duration: .25s; }
+
+/* ==========================================================
+   Name intro — full-screen announcement, then flies into the name tag
+   ========================================================== */
+.name-intro { position: fixed; inset: 0; z-index: 52; display: grid; place-items: center; visibility: hidden; pointer-events: none; }
+.name-intro.show { visibility: visible; pointer-events: auto; }
+.ni-bg {
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(55% 45% at 50% 50%, rgba(61,123,255,.45), transparent 70%),
+    radial-gradient(120% 70% at 50% 120%, rgba(143,123,255,.3), transparent 60%),
+    rgba(3,7,20,.9);
+  backdrop-filter: blur(16px) saturate(1.3);
+  opacity: 0; transition: opacity .6s var(--ease-out);
+}
+.name-intro.show .ni-bg { opacity: 1; }
+
+/* two spotlight beams that sweep in and cross on the name */
+.ni-beam { position: absolute; inset: 0; overflow: hidden; opacity: 0; }
+.ni-beam::before, .ni-beam::after {
+  content: ''; position: absolute; top: -20vh; width: 34vw; height: 140vh; left: 33vw;
+  background: linear-gradient(180deg, rgba(220,231,255,.55), rgba(127,176,255,.12) 55%, transparent 85%);
+  clip-path: polygon(46% 0, 54% 0, 100% 100%, 0 100%);
+  transform-origin: 50% 0; filter: blur(8px); mix-blend-mode: screen;
+}
+.name-intro.show .ni-beam { opacity: 1; transition: opacity .4s; }
+.name-intro.show .ni-beam::before { animation: beamL 1.4s var(--ease-out) both, beamSway 4s 1.4s ease-in-out infinite alternate; }
+.name-intro.show .ni-beam::after { animation: beamR 1.4s var(--ease-out) both, beamSway 4.6s 1.4s ease-in-out infinite alternate-reverse; }
+@keyframes beamL { from { transform: rotate(-60deg); opacity: 0; } to { transform: rotate(-16deg); opacity: 1; } }
+@keyframes beamR { from { transform: rotate(60deg); opacity: 0; } to { transform: rotate(16deg); opacity: 1; } }
+@keyframes beamSway { from { rotate: -3deg; } to { rotate: 3deg; } }
+
+/* expanding broadcast rings */
+.ni-rings { position: absolute; left: 50%; top: 50%; }
+.ni-rings i { position: absolute; left: -10vh; top: -10vh; width: 20vh; height: 20vh; border-radius: 50%; border: 2px solid rgba(127,176,255,.7); opacity: 0; }
+.name-intro.show .ni-rings i { animation: niRing 2.4s .3s var(--ease-out) infinite; }
+.name-intro.show .ni-rings i:nth-child(2) { animation-delay: 1.1s; }
+.name-intro.show .ni-rings i:nth-child(3) { animation-delay: 1.9s; }
+@keyframes niRing { 0% { opacity: .9; transform: scale(.4); } 100% { opacity: 0; transform: scale(7); } }
+
+.ni-card { position: relative; text-align: center; display: flex; flex-direction: column; align-items: center; padding: 0 5vw; }
+.ni-kicker {
+  display: inline-flex; align-items: center; gap: .8vw;
+  font-family: var(--font-display); font-weight: 500; font-size: 2.4vh; color: var(--signal-hi); letter-spacing: .08em;
+  opacity: 0;
+}
+.ni-dot { width: 1.2vh; height: 1.2vh; border-radius: 50%; background: var(--onair); box-shadow: 0 0 1.4vh var(--onair); animation: lamp 1s steps(2) infinite; }
+.name-intro.show .ni-kicker { animation: rise .7s .15s var(--ease-out) both; }
+
+.ni-name {
+  margin-top: 2.5vh;
+  font-family: var(--font-display); font-weight: 900;
+  font-size: 17vh; line-height: .95; letter-spacing: -.045em;
+  color: #fff;
+  filter: drop-shadow(0 0 4vh rgba(61,123,255,.65));
+  transform-origin: 50% 50%;
+  white-space: nowrap;
+  transition: transform .85s cubic-bezier(.65,0,.25,1), filter .85s;
+}
+.ni-name.is-long { font-size: clamp(6vh, 11vh, 9vw); white-space: normal; }
+.ni-name .word { display: inline-block; white-space: nowrap; }
+.ni-name .ch { display: inline-block; opacity: 0;
+  background: linear-gradient(180deg, #ffffff 0%, #dbe6ff 40%, #7d95c9 55%, #eef3ff 68%, #9fb4e3 100%);
+  -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+.ni-name .ch.scr { background: none; -webkit-text-fill-color: var(--signal-hi); }
+.name-intro.show .ni-name .ch { animation: niLetter .8s var(--ease-spring) both; animation-delay: calc(.3s + var(--i) * 50ms); }
+@keyframes niLetter {
+  0% { opacity: 0; transform: translateY(.5em) scale(1.8) rotate(-8deg); filter: blur(12px); }
+  100% { opacity: 1; transform: none; filter: none; }
+}
+.name-intro.show .ni-name { animation: niGlitch 2.8s 1.6s infinite; }
+@keyframes niGlitch {
+  0%, 88%, 100% { translate: 0 0; }
+  89% { translate: -6px 2px; filter: drop-shadow(-6px 0 0 #ff2d55) drop-shadow(6px 0 0 #22b8f0); }
+  91% { translate: 5px -1px; filter: drop-shadow(5px 0 0 #ff2d55) drop-shadow(-5px 0 0 #2ee6c0); }
+  93% { translate: 0 0; }
+}
+
+.ni-eq { display: flex; align-items: flex-end; gap: .6vh; height: 5vh; margin-top: 3vh; opacity: 0; }
+.ni-eq i { width: .8vh; border-radius: .4vh; background: linear-gradient(180deg, #fff, var(--signal)); animation: eq .5s ease-in-out infinite alternate; }
+.ni-eq i:nth-child(odd) { animation-duration: .35s; } .ni-eq i:nth-child(3n) { animation-duration: .6s; animation-delay: -.2s; } .ni-eq i:nth-child(4n) { animation-delay: -.4s; }
+.name-intro.show .ni-eq { animation: rise .7s .9s var(--ease-out) both; }
+
+/* exit 1: the name flies into the tag, everything else fades */
+.name-intro.flying .ni-bg, .name-intro.flying .ni-beam, .name-intro.flying .ni-rings,
+.name-intro.flying .ni-kicker, .name-intro.flying .ni-eq { opacity: 0 !important; transition: opacity .6s; animation-play-state: paused; }
+.name-intro.flying .ni-name { animation: none; filter: drop-shadow(0 0 2vh rgba(127,176,255,.6)); }
+/* exit 2: quick fade (skipped with Space / buzzer) */
+.name-intro.leaving { opacity: 0; transition: opacity .4s; }
+
+/* landing pulse on the name tag */
+.name-landed { animation: landed .9s var(--ease-spring); }
+@keyframes landed { 0% { transform: scale(1.25); filter: brightness(2) drop-shadow(0 0 3vh #7fb0ff); } 100% { transform: none; filter: none; } }
